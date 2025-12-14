@@ -101,7 +101,6 @@
       font-size:14px;
     }
 
-    /* RESET MODAL */
     #resetBox{
       display:none;
       position:fixed;
@@ -138,7 +137,6 @@
 
     <button id="loginBtn">Login</button>
 
-    <!-- FIXED POSITION -->
     <div id="forgotPassword" class="forgot-center">
       Forgot password?
     </div>
@@ -150,6 +148,9 @@
 
   <!-- REGISTER -->
   <div id="registerSection" style="display:none;">
+    <label>Full Legal Name</label>
+    <input id="regLegalName" placeholder="As per official records">
+
     <label>Username</label>
     <input id="regUsername">
 
@@ -227,14 +228,15 @@ async function exists(field,val){
 
 /* REGISTER */
 registerBtn.onclick = async () => {
+  const legalName = regLegalName.value.trim();
   const username = regUsername.value.trim();
   const email = regEmail.value.trim().toLowerCase();
   const password = regPassword.value.trim();
   const civil = civilId.value.replace(/\D/g,"");
   const phone = iti ? iti.getNumber() : "";
 
-  if(!username || !email || !password){
-    message.textContent="Username, email and password are required.";
+  if(!legalName || !username || !email || !password){
+    message.textContent="Full name, username, email and password are required.";
     return;
   }
 
@@ -254,6 +256,7 @@ registerBtn.onclick = async () => {
 
     await runTransaction(db,async tx=>{
       tx.set(doc(db,"users",uid),{
+        legalName,              // 👈 EXACT FIELD NAME
         username,
         username_lower:username.toLowerCase(),
         email,
