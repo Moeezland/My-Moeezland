@@ -19,6 +19,22 @@
     }
 
     *{box-sizing:border-box}
+    
+    <script>
+  const menuBtn = document.getElementById("menuBtn");
+  const dropdown = document.getElementById("dropdown");
+
+  menuBtn.addEventListener("click", () => {
+    dropdown.classList.toggle("open");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove("open");
+    }
+  });
+</script>
+    
     body{
       margin:0;
       background:linear-gradient(180deg,#071018 0%, #071018 100%);
@@ -264,64 +280,96 @@
       .quick .grid{ grid-template-columns:1fr; }
     }
   </style>
+  .actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    position:relative;
+  }
+
+  .hamburger{
+    width:42px;
+    height:42px;
+    border-radius:8px;
+    border:1px solid rgba(0,0,0,.1);
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+
+  .hamburger span{
+    width:18px;
+    height:2px;
+    background:#0b3b59;
+    position:relative;
+  }
+
+  .hamburger span::before,
+  .hamburger span::after{
+    content:"";
+    position:absolute;
+    width:18px;
+    height:2px;
+    background:#0b3b59;
+    left:0;
+  }
+
+  .hamburger span::before{ top:-6px; }
+  .hamburger span::after{ top:6px; }
+
+  .dropdown{
+    position:absolute;
+    right:0;
+    top:52px;
+    width:230px;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 20px 40px rgba(0,0,0,.18);
+    overflow:hidden;
+    display:none;
+    z-index:100;
+  }
+
+  .dropdown.open{
+    display:block;
+  }
+
+  .dropdown a{
+    display:block;
+    padding:14px 16px;
+    color:#05243a;
+    text-decoration:none;
+    font-weight:600;
+    border-bottom:1px solid #eef2f7;
+  }
+
+  .dropdown a:hover{
+    background:#f4f7fb;
+  }
+  
 </head>
 
-<body>
-
-  <div class="trust-banner" id="trustBanner">
-    <span>An official website of the Moeezland government — secure connection & verified domain.</span>
-    <a id="verifyToggle">Here's how you know ▾</a>
-  </div>
-
-  <div class="trust-expand" id="trustExpand">
-    <div class="verify-row">
-      <div class="verify-item">
-        <img src="gov-blue-building.png">
-        <p><strong>Official websites end with .moeezland.com</strong><br>Only verified Moeezland government services use this domain.</p>
-      </div>
-
-      <div class="verify-item">
-        <img src="gov-green-lock.png">
-        <p><strong>Secure websites use HTTPS</strong><br>The lock icon confirms your connection is encrypted & safe.</p>
-      </div>
-
-    </div>
-  </div>
-
-  <header>
-    <div class="nav">
-      <div class="brand">
-        <img src="govlogo.png" class="govlogo">
-        <div><h1>Moeezland حكومة معزلاند</h1></div>
-      </div>
-
-<nav>
-  <ul>
-    <li><a href="/">Home</a></li>
-
-    <li>
-      <a href="https://upmgov.org" target="_blank">
-        Membership
-      </a>
-    </li>
-
-    <li><a href="/location.html">Location</a></li>
-
-    <li>
-      <a href="https://forms.gle/xMVx6KbQZQD8LMrB7" target="_blank">
-        Join Parliament
-      </a>
-    </li>
-
-    <li><a href="/press.html">Press</a></li>
-    
-  </ul>
-</nav>
-
       <!-- UPDATED LINK -->
-      <a class="cta" href="https://portal.moeezland.com" target="_blank">Your account</a>
+      <div class="actions">
+  <!-- Hamburger -->
+  <div class="hamburger" id="menuBtn">
+    <span></span>
+  </div>
 
-    </div>
+  <!-- Dropdown -->
+  <div class="dropdown" id="dropdown">
+    <a href="/">Home</a>
+    <a href="https://upmgov.org" target="_blank">Membership</a>
+    <a href="/location.html">Location</a>
+    <a href="https://forms.gle/xMVx6KbQZQD8LMrB7" target="_blank">Join Parliament</a>
+    <a href="/press.html">Press</a>
+  </div>
+
+  <a class="cta" href="https://portal.moeezland.com" target="_blank">Your account</a>
+</div>
+
   </header>
 
   <section class="hero">
@@ -520,6 +568,7 @@
 
 </body>
 </html>
+
 
 
 
