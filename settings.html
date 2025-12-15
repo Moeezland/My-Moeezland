@@ -43,14 +43,56 @@
 
     .brand img{ height:36px; }
 
-    nav a{
-      margin-left:26px;
+    /* NAV + HAMBURGER */
+    .nav{
+      display:flex;
+      align-items:center;
+      gap:22px;
+    }
+
+    .menu{
+      position:relative;
+    }
+
+    #menuBtn{
+      font-size:22px;
+      background:none;
+      border:none;
+      cursor:pointer;
+      color:var(--primary);
+    }
+
+    .dropdown{
+      position:absolute;
+      top:36px;
+      right:0;
+      background:var(--white);
+      border:1px solid var(--border);
+      border-radius:8px;
+      min-width:170px;
+      display:none;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      z-index:10;
+    }
+
+    .dropdown a{
+      display:block;
+      padding:10px 14px;
       text-decoration:none;
       color:var(--primary);
       font-weight:500;
     }
 
-    nav a:hover{ text-decoration:underline; }
+    .dropdown a:hover{
+      background:#edf2f7;
+    }
+
+    .logout{
+      text-decoration:none;
+      color:var(--primary);
+      font-weight:500;
+      cursor:pointer;
+    }
 
     main{
       max-width:700px;
@@ -129,11 +171,17 @@
     <img src="logo.png" alt="Moeezland">
   </div>
 
-  <nav>
-    <a href="dashboard.html">Dashboard</a>
-    <a href="citizenship.html">Citizenship</a>
-    <a href="settings.html">Settings</a>
-    <a href="#" id="logoutBtn">Logout</a>
+  <nav class="nav">
+    <div class="menu">
+      <button id="menuBtn" aria-label="Menu">☰</button>
+      <div class="dropdown" id="menuDropdown">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="citizenship.html">Citizenship</a>
+        <a href="settings.html">Settings</a>
+      </div>
+    </div>
+
+    <a class="logout" id="logoutBtn">Logout</a>
   </nav>
 </header>
 
@@ -145,7 +193,6 @@
 
   <div class="card">
 
-    <!-- CHANGE EMAIL (POLICY ONLY) -->
     <div class="setting">
       <h2>Change Email Address</h2>
       <p>
@@ -160,7 +207,6 @@
       </div>
     </div>
 
-    <!-- RESET PASSWORD -->
     <div class="setting">
       <h2>Reset Password</h2>
       <p>
@@ -176,7 +222,6 @@
   </div>
 </main>
 
-<!-- 🔌 FIREBASE LOGIC -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
@@ -184,10 +229,7 @@
   const firebaseConfig = {
     apiKey: "AIzaSyCs-pheSxe9bkAqnhG9qOjF7RvFfb9k00A",
     authDomain: "e-civilian-portal2007.firebaseapp.com",
-    projectId: "e-civilian-portal2007",
-    storageBucket: "e-civilian-portal2007.appspot.com",
-    messagingSenderId: "465001179759",
-    appId: "1:465001179759:web:60a45e286fbf1a39ac7b9a"
+    projectId: "e-civilian-portal2007"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -197,6 +239,21 @@
   const resetEmail = document.getElementById("resetEmail");
   const resetMsg = document.getElementById("resetMsg");
   const logoutBtn = document.getElementById("logoutBtn");
+
+  /* Hamburger menu */
+  const menuBtn = document.getElementById("menuBtn");
+  const menuDropdown = document.getElementById("menuDropdown");
+
+  menuBtn.addEventListener("click", () => {
+    menuDropdown.style.display =
+      menuDropdown.style.display === "block" ? "none" : "block";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menuBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+      menuDropdown.style.display = "none";
+    }
+  });
 
   onAuthStateChanged(auth, (user) => {
     if (!user) {
@@ -216,7 +273,7 @@
       await sendPasswordResetEmail(auth, email);
       resetMsg.textContent =
         "Password reset link sent. Please check your email inbox.";
-    } catch (err) {
+    } catch {
       resetMsg.textContent =
         "Unable to send reset link. Please ensure the email is correct.";
     }
@@ -230,4 +287,3 @@
 
 </body>
 </html>
-
