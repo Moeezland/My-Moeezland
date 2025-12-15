@@ -78,8 +78,8 @@
     <label>Password</label>
     <input type="password" id="regPassword">
 
-    <label>Civil ID (optional)</label>
-    <input id="civilId">
+    <label>Civil ID (required)</label>
+    <input id="civilId" placeholder="10-digit Civil ID">
 
     <label>Phone Number (optional)</label>
     <input type="tel" id="phoneInput">
@@ -156,6 +156,60 @@ loginBtn.onclick = async ()=>{
   }finally{
     loginBtn.disabled = false;
     loginBtn.textContent = "Login";
+  }
+};
+
+/* REGISTER (CIVIL ID REQUIRED) */
+registerBtn.onclick = async ()=>{
+  message.textContent="";
+
+  const legalName = regLegalName.value.trim();
+  const username = regUsername.value.trim();
+  const email = regEmail.value.trim().toLowerCase();
+  const password = regPassword.value.trim();
+  const civil = civilId.value.replace(/\D/g,"");
+
+  if(!legalName || !username || !email || !password || !civil){
+    message.textContent="All fields except phone number are required.";
+    return;
+  }
+
+  if(civil.length !== 10){
+    message.textContent="Civil ID must be exactly 10 digits.";
+    return;
+  }
+
+  try{
+    if(await getDocs(query(collection(db,"users"), where("username_lower","==",username.toLowerCase()))).then(s=>!s.empty))
+      throw "Username already taken.";
+
+    if(await getDocs(query(collection(db,"users"), where("email_lower","==",email))).then(s=>!s.empty))
+      throw "Email already registered.";
+
+    const cRef = doc(db,"civil_ids",civil);
+    const cSnap = await getDoc(cRef);
+    if(!cSnap.exists()) throw "Civil ID not found.";
+    if(cSnap.data().used) throw "Civil ID already used.";
+
+    const cred = await createUserWithEmailAndPassword(auth,email,password);
+    const uid = cred.user.uid;
+
+    await runTransaction(db, async tx=>{
+      tx.set(doc(db,"users",uid),{
+        legalName,
+        username,
+        username_lower:username.toLowerCase(),
+        email,
+        email_lower:email,
+        civilId:civil,
+        createdAt:new Date().toISOString()
+      });
+      tx.update(cRef,{used:true,userUID:uid});
+    });
+
+    window.location.href="dashboard.html";
+  }catch(e){
+    message.textContent = typeof e==="string" ? e : "Registration failed.";
   }
 };
 
