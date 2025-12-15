@@ -6,9 +6,12 @@
   <title>Moeezland e-Civilian Portal</title>
 
   <!-- intl-tel-input -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/css/intlTelInput.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/intlTelInput.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/utils.js"></script>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/css/intlTelInput.css" />
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/intlTelInput.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/utils.js"></script>
 
   <style>
     body{
@@ -105,6 +108,13 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* intl-tel-input (RESTORED PROPERLY) */
+const iti = window.intlTelInput(phoneInput, {
+  separateDialCode: true,
+  utilsScript:
+    "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.1.1/js/utils.js"
+});
+
 /* CAPS LOCK WARNING */
 loginPassword.addEventListener("keyup", e=>{
   capsWarn.style.display = e.getModifierState("CapsLock") ? "block" : "none";
@@ -159,7 +169,7 @@ loginBtn.onclick = async ()=>{
   }
 };
 
-/* REGISTER (CIVIL ID REQUIRED) */
+/* REGISTER (CIVIL ID REQUIRED, PHONE E.164) */
 registerBtn.onclick = async ()=>{
   message.textContent="";
 
@@ -168,6 +178,10 @@ registerBtn.onclick = async ()=>{
   const email = regEmail.value.trim().toLowerCase();
   const password = regPassword.value.trim();
   const civil = civilId.value.replace(/\D/g,"");
+
+  const phone = iti.isValidNumber()
+    ? iti.getNumber(intlTelInputUtils.numberFormat.E164)
+    : "";
 
   if(!legalName || !username || !email || !password || !civil){
     message.textContent="All fields except phone number are required.";
@@ -180,11 +194,17 @@ registerBtn.onclick = async ()=>{
   }
 
   try{
-    if(await getDocs(query(collection(db,"users"), where("username_lower","==",username.toLowerCase()))).then(s=>!s.empty))
+    if(!(await getDocs(query(collection(db,"users"),
+      where("username_lower","==",username.toLowerCase())))).empty)
       throw "Username already taken.";
 
-    if(await getDocs(query(collection(db,"users"), where("email_lower","==",email))).then(s=>!s.empty))
+    if(!(await getDocs(query(collection(db,"users"),
+      where("email_lower","==",email)))).empty)
       throw "Email already registered.";
+
+    if(phone && !(await getDocs(query(collection(db,"users"),
+      where("phone","==",phone)))).empty)
+      throw "Phone number already registered.";
 
     const cRef = doc(db,"civil_ids",civil);
     const cSnap = await getDoc(cRef);
@@ -202,6 +222,7 @@ registerBtn.onclick = async ()=>{
         email,
         email_lower:email,
         civilId:civil,
+        phone: phone || "",
         createdAt:new Date().toISOString()
       });
       tx.update(cRef,{used:true,userUID:uid});
